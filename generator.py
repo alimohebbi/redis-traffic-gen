@@ -12,14 +12,16 @@ config = Config()
 
 def request_thread(name, step):
     logging.info("Thread %s of step %s", name, step)
-    f = open("step-%s-thread-%s.txt" % (name, step), "a+")
+    f = open("step-%s.txt" % step, "a+")
     byte_out, byte_err = cmd_executor()
     str_out = byte_out.decode("utf-8")
-    f.write(str_out)
+    err_out = byte_err.decode("utf-8")
+    out = "Thread %a Begin" % name + str_out + err_out + "Thread %a End" % name
+    f.write(out)
     f.close()
 
-    if byte_err is not None:
-        logging.error(byte_err.decode("utf-8"))
+    # if byte_err is not None:
+    #     logging.error(byte_err.decode("utf-8"))
 
     logging.info("Done thread %s of step %s", name, step)
 
