@@ -1,3 +1,4 @@
+import random
 import subprocess
 
 from config import Config
@@ -6,9 +7,12 @@ config = Config()
 
 
 def create_command():
-    cmd = list()
-    cmd.append("memtier_benchmark -s 192.168.200.165 -p 6378 -c 3 -t 2 -d 1024 --ratio=1:1 "
-               "--pipeline=1 --key-pattern S:S --cluster-mode -P redis --test-time=%s" % config.time_steps)
+    bm = config.benchmark
+    server = random.choice(config.servers)
+    cmd = f"memtier_benchmark -s {server} -p {bm.port} -c {bm.clients} -t {bm.threads} -d {bm.data_volume} " \
+        f"--ratio={bm.data_volume} --pipeline=1 --key-pattern S:S --cluster-mode -P redis " \
+        f"--test-time={config.time_steps}"
+
     return cmd
 
 
