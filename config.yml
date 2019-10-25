@@ -6,7 +6,7 @@ benchmark:
   ratio: "1:1"
   port: 6378
 
-time_steps: 10
+time_steps: 60
 profile_path: "./profile.txt"
 log_path: "./logs"
 servers:

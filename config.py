@@ -1,7 +1,5 @@
 import yaml
 
-pass
-
 
 class Config(object):
     _profile = None
