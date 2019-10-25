@@ -2,11 +2,11 @@
 benchmark:
   threads: 3
   clients: 2
-  data_volume: 1045
+  data_volume: 1024
   ratio: "1:1"
   port: 6378
 
-time_steps: 60
+time_steps: 900
 profile_path: "./profile.txt"
 log_path: "./logs"
 servers:

@@ -2,6 +2,7 @@ import concurrent.futures as cf
 import logging
 import os
 from itertools import repeat
+from tqdm import tqdm
 
 from bash_executor import cmd_executor
 from config import Config
@@ -12,12 +13,8 @@ config = Config()
 
 
 def request_thread(name, step):
-    logging.info("Thread %s of step %s", name, step)
-
     byte_out, byte_err = cmd_executor()
     write_log(byte_err, byte_out, name, step)
-
-    logging.info("Done thread %s of step %s", name, step)
 
 
 def write_log(byte_err, byte_out, name, step):
@@ -33,6 +30,6 @@ def write_log(byte_err, byte_out, name, step):
 
 
 def generate():
-    for step, load in enumerate(config.profile):
+    for step, load in enumerate(tqdm(config.profile, desc='Test Progress')):
         with cf.ThreadPoolExecutor(max_workers=load) as executor:
             executor.map(request_thread, range(load), repeat(step))
