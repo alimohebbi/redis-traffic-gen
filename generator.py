@@ -1,5 +1,6 @@
 import logging
 import concurrent.futures as cf
+import os
 from itertools import repeat
 from time import sleep
 from bash_executor import cmd_executor
@@ -13,6 +14,8 @@ config = Config()
 def request_thread(name, step):
     logging.info("Thread %s of step %s", name, step)
     file_path = config.log_path + "/step-%s.txt" % step
+    if not os.path.exists(config.log_path):
+        os.makedirs(config.log_path)
     f = open(file_path, "a+")
     byte_out, byte_err = cmd_executor()
     str_out = byte_out.decode("utf-8")
