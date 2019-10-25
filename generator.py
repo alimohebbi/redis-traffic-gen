@@ -12,7 +12,8 @@ config = Config()
 
 def request_thread(name, step):
     logging.info("Thread %s of step %s", name, step)
-    f = open("step-%s.txt" % step, "a+")
+    file_path = config.log_path + "/step-%s.txt" % step
+    f = open(file_path, "a+")
     byte_out, byte_err = cmd_executor()
     str_out = byte_out.decode("utf-8")
     err_out = byte_err.decode("utf-8")

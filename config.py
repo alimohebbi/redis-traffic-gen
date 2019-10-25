@@ -26,6 +26,10 @@ class Config(object):
     def servers(self):
         return self._get_property('servers')
 
+    @property
+    def log_path(self):
+        return self._get_property('log_path')
+
     def _set_benchmark(self):
         benchmark = self._get_property('benchmark')
         self.benchmark = Benchmark(benchmark)

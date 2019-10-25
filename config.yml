@@ -8,6 +8,7 @@ benchmark:
 
 time_steps: 1800
 profile_path: "./profile.txt"
+log_path: "./logs"
 servers:
   - 192.168.200.165
   - 192.168.200.153
