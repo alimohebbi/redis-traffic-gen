@@ -9,6 +9,7 @@ benchmark:
 time_steps: 900
 profile_path: "./profile.txt"
 log_path: "./logs"
+connection_retry: 4
 servers:
   - 192.168.200.165
   - 192.168.200.153

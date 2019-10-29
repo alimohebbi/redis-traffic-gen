@@ -28,6 +28,10 @@ class Config(object):
     def log_path(self):
         return self._get_property('log_path')
 
+    @property
+    def connection_retry(self):
+        return self._get_property('connection_retry')
+
     def _set_benchmark(self):
         benchmark = self._get_property('benchmark')
         self.benchmark = Benchmark(benchmark)
