@@ -15,12 +15,17 @@ def check_server(server):
     return False
 
 
-def create_command():
+def get_command_args():
     bm = config.benchmark
     server = select_server()
-    cmd = f"memtier_benchmark -s {server} -p {bm.port} -c {bm.clients} -t {bm.threads} -d {bm.data_volume} " \
-        f"--ratio={bm.ratio} --pipeline=1 --key-pattern S:S --cluster-mode -P redis " \
-        f"--test-time={config.time_steps}"
+    args = (server, bm.port, bm.clients, bm.threads, bm.data_volume, bm.ratio, config.time_steps)
+    return args
+
+
+def create_command():
+    args = get_command_args()
+    cmd = "memtier_benchmark -s {} -p {} -c {} -t {} -d {} --ratio={} --pipeline=1 --key-pattern S:S --cluster-mode " \
+          "-P redis --test-time={}".format(* args)
 
     return cmd
 
