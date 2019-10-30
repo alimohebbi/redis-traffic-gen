@@ -18,14 +18,14 @@ def check_server(server):
 def get_command_args():
     bm = config.benchmark
     server = select_server()
-    args = (server, bm.port, bm.clients, bm.threads, bm.data_volume, bm.ratio, config.time_steps)
+    args = (server, bm.port, bm.clients, bm.threads, bm.data_volume, bm.ratio, config.time_steps, bm.expiry_range)
     return args
 
 
 def create_command():
     args = get_command_args()
     cmd = "memtier_benchmark -s {} -p {} -c {} -t {} -d {} --ratio={} --pipeline=1 --key-pattern S:S --cluster-mode " \
-          "-P redis --test-time={}".format(* args)
+          "-P redis --test-time={} --expiry-range={}".format(* args)
 
     return cmd
 

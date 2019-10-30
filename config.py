@@ -56,3 +56,4 @@ class Benchmark(object):
         self.data_volume = values['data_volume']
         self.ratio = values['ratio']
         self.port = values['port']
+        self.expiry_range = values['expiry_range']
