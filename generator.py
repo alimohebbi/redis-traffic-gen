@@ -24,7 +24,7 @@ def write_log(byte_err, byte_out, name, step):
     f = open(file_path, "a+")
     str_out = byte_out.decode("utf-8")
     err_out = byte_err.decode("utf-8")
-    out = "***Thread %a Begin***\n" % name + str_out + err_out + "***Thread %a End***\n" % name
+    out = "***Thread %s Begin***\n" % name + str_out + err_out + "***Thread %s End***\n" % name
     f.write(out)
     f.close()
 
