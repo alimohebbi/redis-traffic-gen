@@ -29,6 +29,10 @@ class Config(object):
         return self._get_property('log_path')
 
     @property
+    def error_path(self):
+        return self._get_property('error_path')
+
+    @property
     def connection_retry(self):
         return self._get_property('connection_retry')
 

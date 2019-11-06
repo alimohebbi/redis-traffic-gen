@@ -5,11 +5,12 @@ benchmark:
   data_volume: 1024
   ratio: "1:1"
   port: 6378
-  expiry_range: "900-1500"
+  expiry_range: "1800-3600"
 
 time_steps: 900
 profile_path: "./profile.txt"
 log_path: "./logs"
+error_path: "./errors"
 connection_retry: 4
 servers:
   - 192.168.200.165
