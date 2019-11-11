@@ -9,6 +9,7 @@ config = Config()
 
 def check_server(server):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#    sock.settimeout(10)
     result = sock.connect_ex((server, config.benchmark.port))
     if result == 0:
         return True

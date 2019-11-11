@@ -11,7 +11,7 @@ time_steps: 900
 profile_path: "./profile.txt"
 log_path: "./logs"
 error_path: "./errors"
-connection_retry: 4
+connection_retry: 1
 servers:
   - 192.168.200.165
   - 192.168.200.153
