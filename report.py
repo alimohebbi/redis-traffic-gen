@@ -27,7 +27,7 @@ def csv_file(path, start_time):
 
     if not os.path.exists(file_path):
         f = open(file_path, "a+")
-        f.write("Timestamps,Thread,Ops/sec,Hits/sec,Misses/sec,MOVED/sec,ASK/sec,Latency,KB/sec")
+        f.write("Timestamps,Thread,Ops/sec,Hits/sec,Misses/sec,MOVED/sec,ASK/sec,Latency,KB/sec\n")
     else:
         f = open(file_path, "a+")
     return f
@@ -37,8 +37,10 @@ def write_csv(byte_text, path, name, start_time):
     f = csv_file(path, start_time)
     str_text = byte_text.decode("utf-8")
     measures = get_measures(str_text)
+    if measures is None:
+        pass
     current_time = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
-    out = "%s,%s\n" % (current_time, name) + measures
+    out = "%s,%s," % (current_time, name) + measures
     f.write(out)
     f.close()
 
