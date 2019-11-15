@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 from bash_executor import cmd_executor
 from config import Config
-from report import write_log, write_report
+from report import write_report
 
 log_format = "%(asctime)s: %(message)s"
 logging.basicConfig(format=log_format, level=logging.INFO, datefmt="%H:%M:%S")
@@ -16,8 +16,7 @@ config = Config()
 
 def request_thread(name, start_time):
     byte_out, byte_err = cmd_executor()
-    write_report(byte_out, config.log_path, name, start_time)
-    write_log(byte_err, config.error_path, name, start_time)
+    write_report(byte_out, byte_err, name, start_time)
 
 
 def generate():
