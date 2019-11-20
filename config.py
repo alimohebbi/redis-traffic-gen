@@ -36,6 +36,10 @@ class Config(object):
     def connection_retry(self):
         return self._get_property('connection_retry')
 
+    @property
+    def thread_life_limit(self):
+        return self._get_property('thread_life_limit')
+
     def _set_benchmark(self):
         benchmark = self._get_property('benchmark')
         self.benchmark = Benchmark(benchmark)

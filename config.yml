@@ -7,7 +7,8 @@ benchmark:
   port: 6378
   expiry_range: "1800-3600"
 
-time_steps: 1800
+time_steps: 10
+thread_life_limit: 1.1
 profile_path: "./profile.txt"
 log_path: "./logs"
 error_path: "./errors"

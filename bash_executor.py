@@ -26,7 +26,7 @@ def get_command_args():
 def create_command():
     args = get_command_args()
     cmd = "memtier_benchmark -s {} -p {} -c {} -t {} -d {} --ratio={} --pipeline=1 --key-pattern S:S --cluster-mode " \
-          "-P redis --test-time={} --expiry-range={}".format(* args)
+              "-P redis --test-time={} --expiry-range={}".format(* args)
 
     return cmd
 
@@ -48,7 +48,7 @@ def cmd_executor(command=create_command()):
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
                                 shell=True)
-    return pip_open.communicate()
+    return pip_open
 
 
 if __name__ == "__main__":
