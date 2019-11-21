@@ -36,12 +36,14 @@ def write_log(byte_text, path, name, start_time):
 
 def create_csv_file(path, start_time):
     file_path = path + "/%s.csv" % start_time
-    f = open(file_path, "a+")
     if not os.path.exists(file_path):
+        f = open(file_path, "a+")
         if path == config.log_path:
             f.write("Timestamps,Thread,Ops/sec,Hits/sec,Misses/sec,MOVED/sec,ASK/sec,Latency,KB/sec\n")
         else:
             f.write("Timestamps,Thread,Ops\n")
+    else:
+        f = open(file_path, "a+")
     return f
 
 
@@ -75,9 +77,3 @@ def write_report(byte_text, byte_error, name, start_time):
     write_log(byte_error, config.error_path, name, start_time)
     write_csv(byte_text, config.log_path, name, start_time)
     write_csv(byte_error, config.error_path, name, start_time)
-
-
-if __name__ == '__main__':
-    f = open("logs/log-sample.txt", "r")
-    content = f.read()
-    print get_measures_from_error(content)

@@ -26,7 +26,10 @@ class TrafficGeneratorThread(Thread):
         return int(age)
 
     def stop(self):
-        self._process.kill()
+        try:
+            self._process.kill()
+        except Exception as e:
+            print e
 
     def start(self):
         self._start_time = datetime.datetime.now()
