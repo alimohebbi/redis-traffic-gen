@@ -1,93 +1,84 @@
 import datetime
 import logging
 from Queue import Queue
-from threading import Thread
 from time import sleep
-import concurrent.futures as cf
-from tqdm import tqdm
-from bash_executor import cmd_executor
+
 from config import Config
-from report import write_report
+from traffic_thread import TrafficGeneratorThread
 
 config = Config()
 new_thread_q = Queue()
 thead_list = list()
-
-
-def request_thread(name, start_time, process):
-    byte_out, byte_err = process().communicate()
-    write_report(byte_out, byte_err, name, start_time)
-
-
-def generate():
-    start_time = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
-    for load in tqdm(config.profile, desc='Test Progress'):
-        with cf.ThreadPoolExecutor(max_workers=load) as executor:
-            # executor.map(request_thread, range(load), repeat(start_time))
-            for i in tqdm(range(load), desc='Step progress'):
-                executor.submit(request_thread, i, start_time)
-                sleep(1)
-
-
-class TrafficGeneratorThread(Thread):
-    _start_time = None
-    _process = None
-
-    def __init__(self, target, args):
-        args = args + (self.get_process,)
-        super(TrafficGeneratorThread, self).__init__(target=target, args=args)
-
-    def get_process(self):
-        return self._process
-
-    def get_age(self):
-        return datetime.datetime.now() - self._start_time
-
-    def stop(self):
-        self._process.kill()
-
-    def start(self):
-        self._start_time = datetime.datetime.now()
-        self._process = cmd_executor()
-        super(TrafficGeneratorThread, self).start()
-        print "start end"
-
-
-def kill_locked_thread():
-    for tg_thread in thead_list:
-        if tg_thread.get_age() > config.time_steps * config.thread_life_limit:
-            pass
-
-
-def calculate_new_threads_num():
-    pass
-
-
-def add_new_threads_to_q():
-    pass
-
-
-def controller():
-    limit = config.profile.__len__() * config.time_steps
-    start_time = datetime.datetime.now()
-    controller_age = 0
-    while thead_list.count() == 0 or controller_age < limit:
-        controller_age = datetime.datetime.now() - start_time
-        kill_locked_thread()
-        calculate_new_threads_num()
-        add_new_threads_to_q()
+execution_start_time = datetime.datetime.now()
+logging.basicConfig(level=logging.DEBUG)
 
 
 def executor():
-    pass
+    while execution_has_time():
+        if not new_thread_q.empty():
+            thread = new_thread_q.get()
+            thead_list.append(thread)
+            thread.start()
+            # todo add to config
+        logging.debug("executor")
+        sleep(1)
+    logging.debug("executor finished")
+
+
+def controller():
+    while thead_list.__len__() != 0 or execution_has_time():
+        kill_locked_thread()
+        new_thread_num, step = calculate_new_threads_num()
+        add_new_threads_to_q(new_thread_num, step)
+        # todo add to config
+        logging.debug("controller create %s", new_thread_num)
+        sleep(10)
+    logging.debug("controller finished")
+
+
+def add_new_threads_to_q(num, step):
+    for i in range(num):
+        start_time = execution_start_time.strftime('%Y-%m-%dT%H:%M:%S')
+        thread = TrafficGeneratorThread(step, start_time)
+        new_thread_q.put(thread)
+
+
+def calculate_new_threads_num():
+    current_time = datetime.datetime.now()
+    time_elapsed = (current_time - execution_start_time).total_seconds()
+    profile_index = int(time_elapsed / config.time_steps)
+    required_num = config.profile[profile_index]
+    return required_num - thead_list.__len__() - new_thread_q.qsize(), profile_index
+
+
+def kill_locked_thread():
+    count = 0
+    for tg_thread in thead_list:
+        if tg_thread.get_age() > config.time_steps * config.thread_life_limit:
+            logging.debug("Thread Killed with age %s " , tg_thread.get_age())
+            tg_thread.stop()
+            thead_list.remove(tg_thread)
+            count += 1
+        if not tg_thread.is_alive():
+            thead_list.remove(tg_thread)
+
+    # todo add to config
+    if count > 20:
+        raise Exception("Too many thread not responding")
+
+
+def execution_has_time():
+    limit = config.profile.__len__() * config.time_steps
+    controller_age = (datetime.datetime.now() - execution_start_time).total_seconds()
+    return controller_age < limit
 
 
 if __name__ == "__main__":
-    ex = cf.ProcessPoolExecutor(max_workers=3)
-    f = TrafficGeneratorThread(request_thread, ("heh", datetime.datetime.now()))
+    f = TrafficGeneratorThread(1, "MY-Test-Result")
+    sleep(2)
     f.start()
-    print "here"
-    sleep(15)
-    print "here"
-    f.stop()
-    print "here"
+    logging.debug("after start")
+    sleep(2)
+    print f.is_alive()
+    sleep(60)
+    print f.is_alive()
