@@ -44,8 +44,8 @@ def create_csv_file(path, start_time):
         f = open(file_path, "a+")
         if path == config.log_path:
             f.write("Timestamps,Thread,Ops/sec,Hits/sec,Misses/sec,MOVED/sec,ASK/sec,Latency,KB/sec\n")
-        else:
-            f.write("Timestamps,Thread,Ops\n")
+        elif path == config.controller.log_path:
+            f.write("Timestamps,Status,Active,Finished,Killed,New,Early Finished,In Queue\n")
     else:
         f = open(file_path, "a+")
     return f
@@ -68,15 +68,25 @@ def write_csv(byte_text, path, name, start_time):
     f.close()
 
 
+def write_controller_csv(path, start_time, measures):
+    f = create_csv_file(path, start_time)
+    current_time = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+    measures = (current_time,) + measures
+    out = "%s,%s,%s,%s,%s,%s,%s,%s\n" % measures
+    f.write(out)
+    f.close()
+
+
 def setup_dir():
     if not os.path.exists(config.log_path):
         os.makedirs(config.log_path)
     if not os.path.exists(config.error_path):
         os.makedirs(config.error_path)
+    if not os.path.exists(config.controller.log_path):
+        os.makedirs(config.controller.log_path)
 
 
 def write_memtier_report(byte_text, byte_error, name, start_time):
-    setup_dir()
     write_log(byte_text, config.log_path, name, start_time)
     write_log(byte_error, config.error_path, name, start_time)
     write_csv(byte_text, config.log_path, name, start_time)
@@ -84,8 +94,16 @@ def write_memtier_report(byte_text, byte_error, name, start_time):
 
 
 def write_stats(stats):
+    setup_dir()
     measures = stats.status, stats.active_threads, stats.finished, stats.killed, stats.new_threads, stats.early_finish
     measures += (stats.in_queue,)
+    write_stats_in_console(measures, stats)
+
+    start_time = stats.start_time.strftime('%Y-%m-%dT%H:%M:%S')
+    write_controller_csv(config.controller.log_path, start_time, measures)
+
+
+def write_stats_in_console(measures, stats):
     progress = int(stats.iterations / float(stats.total_iterations) * 100)
     time_dic = {}
     controller_age = datetime.datetime.now() - stats.start_time
@@ -101,10 +119,8 @@ def write_stats(stats):
 
 
 if __name__ == "__main__":
-    for i in range(100):
-        sleep(1)
-        sys.stdout.write("\r%d%%" % i)
-        sys.stdout.flush()
+    t = ('a', 'b')
+    print " hi %s and %s" * t
 
 
 def update_progress(progress, desc, time_dic):
@@ -114,5 +130,5 @@ def update_progress(progress, desc, time_dic):
     stdscr.addstr(0, 0, "Measure: {0}".format(titles))
     stdscr.addstr(1, 0, "Stats  : {:<8} {:<8} {:<10} {:<8} {:<6} {:<15} {:<10}".format(*desc))
     stdscr.addstr(3, 0, "Total progress: [{1:50}] {0}%".format(progress, "#" * (progress / 2)))
-    stdscr.addstr(4, 0, "Time Elapsed: %s     Iteration: %s     Iteration/s: %s     Remain: %s" % t)
+    stdscr.addstr(4, 0, "Time Elapsed: %s     Iteration: %s     Iteration/s: %s     Remain: %s\n" % t)
     stdscr.refresh()

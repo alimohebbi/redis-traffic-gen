@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 def executor():
-    while execution_has_time():
+    while execution_has_time() and Stats.status == 'OK':
         if not new_thread_q.empty():
             thread = new_thread_q.get()
             thread.start()
@@ -25,15 +25,21 @@ def executor():
 
 
 def controller():
-    Stats.total_iterations = config.time_steps * config.profile.__len__()  / config.controller.control_frequency
+    Stats.total_iterations = config.time_steps * config.profile.__len__() / config.controller.control_frequency
     while thead_list.__len__() != 0 or execution_has_time():
-        kill_locked_thread()
-        new_thread_num, step = calculate_new_threads_num()
-        add_new_threads_to_q(new_thread_num, step)
-        write_stats(Stats)
+        try:
+            kill_locked_thread()
+            new_thread_num, step = calculate_new_threads_num()
+            add_new_threads_to_q(new_thread_num, step)
+            write_stats(Stats)
+        except Exception as e:
+            write_stats(Stats)
+            logging.error(e)
+            write_stats(Stats)
+            break
+
         Stats.iterations += 1
         sleep(config.controller.control_frequency)
-    logging.debug("controller finished")
 
 
 def add_new_threads_to_q(num, step):
@@ -48,6 +54,7 @@ def calculate_new_threads_num():
     time_elapsed = (current_time - execution_start_time).total_seconds()
     profile_index = int(time_elapsed / config.time_steps)
     if config.profile.__len__() <= profile_index:
+        Stats.new_threads = 0
         return 0, 0
     required_num = config.profile[profile_index]
     new_num = required_num - thead_list.__len__() - new_thread_q.qsize()
@@ -60,12 +67,11 @@ def kill_locked_thread():
     finish_count = 0
     early_finish = 0
     for tg_thread in thead_list:
-        if tg_thread.get_age() > config.time_steps * config.thread_life_limit:
-            logging.debug("Thread Killed with age %s ", tg_thread.get_age())
+        if tg_thread.get_age() > config.time_steps * config.controller.thread_life_limit:
             tg_thread.stop()
             thead_list.remove(tg_thread)
             kill_count += 1
-        if not tg_thread.is_alive():
+        elif not tg_thread.is_alive():
             thead_list.remove(tg_thread)
             if tg_thread.get_age < config.time_steps:
                 early_finish += 1
@@ -106,7 +112,7 @@ class Stats:
         pass
 
 
-def set_threads_stats( kill_count, finish_count, early_finish):
+def set_threads_stats(kill_count, finish_count, early_finish):
     Stats.killed += kill_count
     Stats.finished += finish_count
     Stats.early_finish += early_finish

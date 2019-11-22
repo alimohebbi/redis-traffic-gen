@@ -38,10 +38,6 @@ class Config(object):
     def connection_retry(self):
         return self._get_property('connection_retry')
 
-    @property
-    def thread_life_limit(self):
-        return self._get_property('thread_life_limit')
-
     def _set_benchmark(self):
         benchmark = self._get_property('benchmark')
         self.benchmark = Benchmark(benchmark)
@@ -80,3 +76,4 @@ class Controller(object):
         self.execute_frequency = values['execute_frequency']
         self.stop_tolerance = values['stop_tolerance']
         self.early_finish_tolerance = values['early_finish_tolerance']
+        self.log_path = values['log_path']
