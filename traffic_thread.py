@@ -2,12 +2,12 @@ import datetime
 from threading import Thread
 
 from bash_executor import cmd_executor
-from report import write_report
+from report import write_memtier_report
 
 
 def request_thread(name, start_time, process):
     byte_out, byte_err = process().communicate()
-    write_report(byte_out, byte_err, name, start_time)
+    write_memtier_report(byte_out, byte_err, name, start_time)
 
 
 class TrafficGeneratorThread(Thread):
@@ -35,4 +35,4 @@ class TrafficGeneratorThread(Thread):
         self._start_time = datetime.datetime.now()
         self._process = cmd_executor(None)
         super(TrafficGeneratorThread, self).start()
-        print "Thread started"
+        # print "Thread started"

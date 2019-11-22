@@ -1,6 +1,10 @@
+import curses
 import datetime
 import os
 import re
+import sys
+from time import sleep
+
 from config import Config
 
 config = Config()
@@ -71,9 +75,44 @@ def setup_dir():
         os.makedirs(config.error_path)
 
 
-def write_report(byte_text, byte_error, name, start_time):
+def write_memtier_report(byte_text, byte_error, name, start_time):
     setup_dir()
     write_log(byte_text, config.log_path, name, start_time)
     write_log(byte_error, config.error_path, name, start_time)
     write_csv(byte_text, config.log_path, name, start_time)
     write_csv(byte_error, config.error_path, name, start_time)
+
+
+def write_stats(stats):
+    measures = stats.status, stats.active_threads, stats.finished, stats.killed, stats.new_threads, stats.early_finish
+    measures += (stats.in_queue,)
+    progress = int(stats.iterations / float(stats.total_iterations) * 100)
+    time_dic = {}
+    controller_age = datetime.datetime.now() - stats.start_time
+    time_dic['elapsed'] = str(controller_age).split(".")[0]
+    time_dic['iterations'] = stats.iterations
+    if stats.iterations == 0:
+        time_dic['avg_it'] = 0
+    else:
+        time_dic['avg_it'] = str(controller_age.total_seconds() / stats.iterations).split(".")[0]
+    seconds_remain = int(time_dic['avg_it']) * (stats.total_iterations - stats.iterations)
+    time_dic['remain'] = datetime.timedelta(seconds=seconds_remain)
+    update_progress(progress, measures, time_dic)
+
+
+if __name__ == "__main__":
+    for i in range(100):
+        sleep(1)
+        sys.stdout.write("\r%d%%" % i)
+        sys.stdout.flush()
+
+
+def update_progress(progress, desc, time_dic):
+    stdscr = curses.initscr()
+    t = (time_dic['elapsed'], time_dic['iterations'], time_dic['avg_it'], time_dic['remain'])
+    titles = 'Status | Active | Finished | Killed | New | Early Finished | In Queue'
+    stdscr.addstr(0, 0, "Measure: {0}".format(titles))
+    stdscr.addstr(1, 0, "Stats  : {:<8} {:<8} {:<10} {:<8} {:<6} {:<15} {:<10}".format(*desc))
+    stdscr.addstr(3, 0, "Total progress: [{1:50}] {0}%".format(progress, "#" * (progress / 2)))
+    stdscr.addstr(4, 0, "Time Elapsed: %s     Iteration: %s     Iteration/s: %s     Remain: %s" % t)
+    stdscr.refresh()

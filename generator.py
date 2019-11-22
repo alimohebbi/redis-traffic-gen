@@ -3,9 +3,8 @@ import logging
 from Queue import Queue
 from time import sleep
 
-from tqdm import tqdm
-
 from config import Config
+from report import write_stats
 from traffic_thread import TrafficGeneratorThread
 
 config = Config()
@@ -21,24 +20,19 @@ def executor():
             thread = new_thread_q.get()
             thread.start()
             thead_list.append(thread)
-            # todo add to config
-        logging.debug("executor")
-        sleep(1)
+        sleep(config.controller.execute_frequency)
     logging.debug("executor finished")
 
 
 def controller():
-    total = config.time_steps * config.profile.__len__() / 10
-    pbar = tqdm(total=total)
+    Stats.total_iterations = config.time_steps * config.profile.__len__()  / config.controller.control_frequency
     while thead_list.__len__() != 0 or execution_has_time():
         kill_locked_thread()
         new_thread_num, step = calculate_new_threads_num()
         add_new_threads_to_q(new_thread_num, step)
-        # todo add to config
-        logging.debug("controller create %s", new_thread_num)
-        pbar.update()
-        sleep(10)
-    pbar.close()
+        write_stats(Stats)
+        Stats.iterations += 1
+        sleep(config.controller.control_frequency)
     logging.debug("controller finished")
 
 
@@ -56,24 +50,38 @@ def calculate_new_threads_num():
     if config.profile.__len__() <= profile_index:
         return 0, 0
     required_num = config.profile[profile_index]
-    return required_num - thead_list.__len__() - new_thread_q.qsize(), profile_index
+    new_num = required_num - thead_list.__len__() - new_thread_q.qsize()
+    Stats.new_threads = new_num
+    return new_num, profile_index
 
 
 def kill_locked_thread():
-    count = 0
+    kill_count = 0
+    finish_count = 0
+    early_finish = 0
     for tg_thread in thead_list:
         if tg_thread.get_age() > config.time_steps * config.thread_life_limit:
             logging.debug("Thread Killed with age %s ", tg_thread.get_age())
             tg_thread.stop()
             thead_list.remove(tg_thread)
-            count += 1
+            kill_count += 1
         if not tg_thread.is_alive():
-            logging.debug("Thread Removed")
             thead_list.remove(tg_thread)
+            if tg_thread.get_age < config.time_steps:
+                early_finish += 1
+            else:
+                finish_count += 1
+    check_health(early_finish, finish_count, kill_count)
 
-    # todo add to config
-    if count > 20:
-        raise Exception("Too many thread not responding")
+
+def check_health(early_finish, finish_count, kill_count):
+    set_threads_stats(kill_count, finish_count, early_finish)
+    if kill_count > config.controller.stop_tolerance:
+        Stats.status = 'Fail'
+        raise Exception("Too many threads not responding")
+    if early_finish > config.controller.early_finish_tolerance:
+        Stats.status = 'Fail'
+        raise Exception("Too many thread finished early")
 
 
 def execution_has_time():
@@ -82,8 +90,32 @@ def execution_has_time():
     return controller_age < limit
 
 
+class Stats:
+    new_threads = 0
+    in_queue = 0
+    killed = 0
+    finished = 0
+    early_finish = 0
+    status = 'OK'
+    total_iterations = 0
+    iterations = 0
+    active_threads = 0
+    start_time = None
+
+    def __init__(self):
+        pass
+
+
+def set_threads_stats( kill_count, finish_count, early_finish):
+    Stats.killed += kill_count
+    Stats.finished += finish_count
+    Stats.early_finish += early_finish
+    Stats.active_threads = thead_list.__len__()
+    Stats.in_queue = new_thread_q.qsize()
+
+
 if __name__ == "__main__":
-    f = TrafficGeneratorThread(1, "MY-Test-Result")
+    f = TrafficGeneratorThread('1', "MY-Test-Result")
     sleep(2)
     f.start()
     logging.debug("after start")

@@ -33,13 +33,15 @@ def create_command():
 
 def select_server():
     server = None
-    for i in range(config.connection_retry):
-        candid_server = random.choice(config.servers)
-        if check_server(candid_server):
-            server = candid_server
-            break
-    if server is None:
-        raise RuntimeError("None of servers are available")
+    server = random.choice(config.servers)
+
+    # for i in range(config.connection_retry):
+    #     candid_server = random.choice(config.servers)
+    #     if check_server(candid_server):
+    #         server = candid_server
+    #         break
+    # if server is None:
+    #     raise RuntimeError("None of servers are available")
     return server
 
 

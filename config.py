@@ -4,6 +4,7 @@ import yaml
 class Config(object):
     _profile = None
     benchmark = None
+    controller = None
 
     def __init__(self):
         with open("config.yml", 'r') as ymlfile:
@@ -11,6 +12,7 @@ class Config(object):
 
         self.set_profile()
         self._set_benchmark()
+        self._set_controller()
 
     @property
     def time_steps(self):
@@ -44,6 +46,10 @@ class Config(object):
         benchmark = self._get_property('benchmark')
         self.benchmark = Benchmark(benchmark)
 
+    def _set_controller(self):
+        controller = self._get_property('controller')
+        self.controller = Controller(controller)
+
     def set_profile(self):
         profile_path = self._get_property('profile_path')
         f = open(profile_path, "r")
@@ -65,3 +71,12 @@ class Benchmark(object):
         self.ratio = values['ratio']
         self.port = values['port']
         self.expiry_range = values['expiry_range']
+
+
+class Controller(object):
+    def __init__(self, values):
+        self.thread_life_limit = values['thread_life_limit']
+        self.control_frequency = values['control_frequency']
+        self.execute_frequency = values['execute_frequency']
+        self.stop_tolerance = values['stop_tolerance']
+        self.early_finish_tolerance = values['early_finish_tolerance']
