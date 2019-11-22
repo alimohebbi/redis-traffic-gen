@@ -73,7 +73,7 @@ def kill_locked_thread():
             kill_count += 1
         elif not tg_thread.is_alive():
             thead_list.remove(tg_thread)
-            if tg_thread.get_age < config.time_steps:
+            if tg_thread.get_age() < config.time_steps:
                 early_finish += 1
             else:
                 finish_count += 1

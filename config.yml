@@ -1,7 +1,7 @@
 ---
 benchmark:
-  threads: 2
-  clients: 2
+  threads: 20
+  clients: 500
   data_volume: 1024
   ratio: "1:1"
   port: 6378
@@ -15,7 +15,7 @@ controller:
   early_finish_tolerance: 2
   log_path: "./controller_log"
 
-time_steps: 180
+time_steps: 1800
 profile_path: "./profile.txt"
 log_path: "./logs"
 error_path: "./errors"
