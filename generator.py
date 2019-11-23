@@ -11,7 +11,7 @@ config = Config()
 new_thread_q = Queue()
 thead_list = list()
 execution_start_time = datetime.datetime.now()
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
 
 
 def executor():
@@ -34,8 +34,8 @@ def controller():
             write_stats(Stats)
         except Exception as e:
             write_stats(Stats)
-            logging.error(e)
             write_stats(Stats)
+            logging.error(e)
             break
 
         Stats.iterations += 1
