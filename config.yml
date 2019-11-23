@@ -1,7 +1,7 @@
 ---
 benchmark:
-  threads: 20
-  clients: 500
+  threads: 2
+  clients: 2
   data_volume: 1024
   ratio: "1:1"
   port: 6378
