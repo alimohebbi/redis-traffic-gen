@@ -23,10 +23,11 @@ def get_command_args():
     return args
 
 
-def create_command():
+def create_command(prefix):
     args = get_command_args()
-    cmd = "memtier_benchmark -s {} -p {} -c {} -t {} -d {} --ratio={} --pipeline=1 --key-pattern S:S --cluster-mode " \
-          "-P redis --test-time={} --expiry-range={}".format(*args)
+    args = args + (prefix,)
+    cmd = "memtier_benchmark -s {} -p {} -c {} -t {} -d {} --ratio={} --pipeline=1 --key-pattern R:R --cluster-mode " \
+          "-P redis --test-time={} --expiry-range={} --key-prefix{}".format(*args)
 
     return cmd
 
@@ -45,9 +46,8 @@ def select_server():
     return server
 
 
-def cmd_executor(command):
-    if command is None:
-        command = create_command()
+def cmd_executor(prefix):
+    command = create_command(prefix)
     pip_open = subprocess.Popen(command,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,

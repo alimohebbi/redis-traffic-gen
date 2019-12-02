@@ -15,6 +15,7 @@ class TrafficGeneratorThread(Thread):
     _process = None
 
     def __init__(self, name, start_time):
+        self._name = name
         args = (name, start_time, self.get_process,)
         super(TrafficGeneratorThread, self).__init__(target=request_thread, args=args)
 
@@ -33,6 +34,7 @@ class TrafficGeneratorThread(Thread):
 
     def start(self):
         self._start_time = datetime.datetime.now()
-        self._process = cmd_executor(None)
+        prefix = self.name + self._start_time
+        self._process = cmd_executor(prefix)
         super(TrafficGeneratorThread, self).start()
         # print "Thread started"
