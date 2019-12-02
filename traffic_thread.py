@@ -38,6 +38,7 @@ class TrafficGeneratorThread(Thread):
     def start(self):
         self._start_time = datetime.datetime.now()
         prefix = str(self._start_time) + self.name
+        prefix = prefix.replace(" ", "")
         logging.debug(prefix)
         self._process = cmd_executor(prefix)
         super(TrafficGeneratorThread, self).start()
