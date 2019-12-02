@@ -15,7 +15,7 @@ controller:
   early_finish_tolerance: 5
   log_path: "./controller_log"
 
-time_steps: 900
+time_steps: 300
 profile_path: "./profile.txt"
 log_path: "./logs"
 error_path: "./errors"

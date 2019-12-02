@@ -1,8 +1,11 @@
 import datetime
+import logging
 from threading import Thread
 
 from bash_executor import cmd_executor
 from report import write_memtier_report
+
+logging.basicConfig(level=logging.INFO)
 
 
 def request_thread(name, start_time, process):
@@ -34,7 +37,7 @@ class TrafficGeneratorThread(Thread):
 
     def start(self):
         self._start_time = datetime.datetime.now()
-        prefix = self.name + self._start_time
+        prefix = str(self._start_time) + self.name
+        logging.debug(prefix)
         self._process = cmd_executor(prefix)
         super(TrafficGeneratorThread, self).start()
-        # print "Thread started"

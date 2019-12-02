@@ -24,10 +24,11 @@ def get_command_args():
 
 
 def create_command(prefix):
+
     args = get_command_args()
     args = args + (prefix,)
     cmd = "memtier_benchmark -s {} -p {} -c {} -t {} -d {} --ratio={} --pipeline=1 --key-pattern R:R --cluster-mode " \
-          "-P redis --test-time={} --expiry-range={} --key-prefix{}".format(*args)
+          "-P redis --test-time={} --expiry-range={} --key-prefix={}".format(*args)
 
     return cmd
 
