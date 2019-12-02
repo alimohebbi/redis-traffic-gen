@@ -1,9 +1,6 @@
-import curses
 import datetime
 import os
 import re
-import sys
-from time import sleep
 
 from config import Config
 
@@ -124,11 +121,10 @@ if __name__ == "__main__":
 
 
 def update_progress(progress, desc, time_dic):
-    stdscr = curses.initscr()
+    os.system('clear')
     t = (time_dic['elapsed'], time_dic['iterations'], time_dic['avg_it'], time_dic['remain'])
     titles = 'Status | Active | Finished | Killed | New | Early Finished | In Queue'
-    stdscr.addstr(0, 0, "Measure: {0}".format(titles))
-    stdscr.addstr(1, 0, "Stats  : {:<8} {:<8} {:<10} {:<8} {:<6} {:<15} {:<10}".format(*desc))
-    stdscr.addstr(3, 0, "Total progress: [{1:50}] {0}%".format(progress, "#" * (progress / 2)))
-    stdscr.addstr(4, 0, "Time Elapsed: %s     Iteration: %s     Iteration/s: %s     Remain: %s\n" % t)
-    stdscr.refresh()
+    print ("Measure: {0}".format(titles))
+    print("Stats  : {:<8} {:<8} {:<10} {:<8} {:<6} {:<15} {:<10}".format(*desc))
+    print("Total progress: [{1:50}] {0}%".format(progress, "#" * (progress / 2)))
+    print("Time Elapsed: %s     Iteration: %s     Iteration/s: %s     Remain: %s\n" % t)

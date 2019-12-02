@@ -5,7 +5,7 @@ from threading import Thread
 from bash_executor import cmd_executor
 from report import write_memtier_report
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.ERROR)
 
 
 def request_thread(name, start_time, process):
